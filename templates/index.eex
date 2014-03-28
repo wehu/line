@@ -84,7 +84,7 @@
 
   <body>
     <div id="header">
-      <h1>Websocket client</h1>
+      <h1>Line client</h1>
       <div id="status"></div>
     </div>
 
