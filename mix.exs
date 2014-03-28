@@ -21,7 +21,8 @@ defmodule Line.Mixfile do
   # { :barbat, "~> 0.1", github: "elixir-lang/barbat" }
   defp deps do
     [{ :cowboy, git: "https://github.com/extend/cowboy.git" },
-     { :plug, git: "https://github.com/elixir-lang/plug.git" }]
+     { :plug, git: "https://github.com/elixir-lang/plug.git" },
+     { :gproc, git: "https://github.com/uwiger/gproc.git"}]
   end
 
 end
