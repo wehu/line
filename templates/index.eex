@@ -1,19 +1,19 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title>Websocket client</title>
+    <title>Line client</title>
     <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
     <script type="text/javascript">
       
       var websocket;
       $(document).ready(init);
-      
+
       function init() {
           if(!("WebSocket" in window)){  
               $('#status').append('<p><span style="color: red;">websockets are not supported </span></p>');
               $("#navigation").hide();  
           } else {
-              $('#status').append('<p><span style="color: green;">websockets are supported </span></p>');
+              //$('#status').append('<p><span style="color: green;">websockets are supported </span></p>');
               connect();
           };
               $("#connected").hide(); 	
@@ -24,7 +24,7 @@
       {
           wsHost = $("#server").val()
           websocket = new WebSocket(wsHost);
-          showScreen('<b>Connecting to: ' +  wsHost + '</b>'); 
+          //showScreen('<b>Connecting to: ' +  wsHost + '</b>'); 
           websocket.onopen = function(evt) { onOpen(evt) }; 
           websocket.onclose = function(evt) { onClose(evt) }; 
           websocket.onmessage = function(evt) { onMessage(evt) }; 
@@ -47,7 +47,7 @@
           if(websocket.readyState == websocket.OPEN){
               txt = $("#send_txt").val();
               websocket.send(txt);
-              showScreen('sending: ' + txt); 
+              //showScreen('sending: ' + txt); 
           } else {
                showScreen('websocket is not connected'); 
           };
@@ -64,7 +64,7 @@
       };  
 
       function onMessage(evt) { 
-          showScreen('<span style="color: blue;">RESPONSE: ' + evt.data+ '</span>'); 
+          showScreen('<span style="color: blue;">' + evt.data+ '</span>'); 
       };  
 
       function onError(evt) {

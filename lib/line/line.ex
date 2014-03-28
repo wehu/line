@@ -8,8 +8,10 @@ defmodule Line.Router do
   plug :match
   plug :dispatch
 
+  @port {:n, :l, {__MODULE__, :port}}
+
   get "/" do
-    send_resp(conn, 200, index(:guest, 4000))
+    send_resp(conn, 200, index(:guest, :gproc.get_value(@port, :gproc.lookup_pid(@port))))
   end
 
   match _ do
@@ -22,6 +24,7 @@ defmodule Line.Router do
       _ -> 4000
     end
     :application.start(:gproc)
+    :gproc.reg(@port, port)
     dispatch = [{ :_, [{"/ws", Line.WebSocketHandler, [] },
                        {:_, Plug.Adapters.Cowboy.Handler, { __MODULE__, [] } } ] }]
     IO.puts "Running Line with Cowboy on http://localhost:#{port}"
@@ -38,28 +41,30 @@ defmodule Line.WebSocketHandler do
   @subpub {:p, :l, {:subpub, :websocket}}
 
   def init({:tcp, :http}, _req, _opts) do
-IO.puts "connect ws"
     {:upgrade, :protocol, :cowboy_websocket}
   end
 
-  def websocket_init(_transport_name, req, _opts) do
-IO.puts "connect ws"
+  def websocket_init(_transport_name, req, opts) do
     :gproc.reg(@subpub)
-    {:ok, req, :undefined_state}
+    {:ok, req, opts}
   end
 
   def websocket_handle({:text, msg}, req, state) do
-IO.puts "handle ws"
-    {:reply, {:text, "That's what she said! #{msg}"}, req, state}
+    #{:reply, {:text, "That's what she said! #{msg}"}, req, state}
+    :gproc.send(@subpub, {self, @subpub, msg})
+    {:ok, req, state}
   end
 
   def websocket_info({:timeout, _ref, msg}, req, state) do
-    :erlang.start_timer(1000, self, "How' you doin'?")
     {:reply, {:text, msg}, req, state}
   end
 
-  def websocket_info(_info, req, state) do
-    {:ok, req, state}
+  def websocket_info(info, req, state) do
+    case info do
+       {_pid, @subpub, msg} ->
+           {:reply, {:text, msg}, req, state}
+       _ -> {:ok, req, state}
+    end
   end
 
   def websocket_terminate(_reason, _req, _state) do
